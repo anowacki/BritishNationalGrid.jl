@@ -1,7 +1,7 @@
 # BritishNationalGrid
 
-[![Build Status](https://img.shields.io/travis/anowacki/BritishNationalGrid.jl.svg?style=flat-square&label=linux)](https://travis-ci.org/anowacki/BritishNationalGrid.jl)
-[![Coverage Status](https://coveralls.io/repos/github/anowacki/BritishNationalGrid.jl/badge.svg?branch=master)](https://coveralls.io/github/anowacki/BritishNationalGrid.jl?branch=master)
+[![Build Status](https://img.shields.io/travis/anowacki/BritishNationalGrid.svg?style=flat-square&label=linux)](https://travis-ci.org/anowacki/BritishNationalGrid)
+[![Coverage Status](https://coveralls.io/repos/github/anowacki/BritishNationalGrid/badge.svg?branch=master)](https://coveralls.io/github/anowacki/BritishNationalGrid?branch=master)
 
 ## Convert between WGS84 coordinates and British National Grid references
 
