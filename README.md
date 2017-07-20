@@ -13,6 +13,8 @@ longitude-latitude and grid references.
 julia> Pkg.clone("https://github.com/anowacki/BritishNationalGrid.jl")
 ```
 
+The package only support Julia `v0.6` upwards.
+
 **NB**: Automatic installation of the Proj4 library [doesn't seem to be working
 on Windows yet](https://github.com/JuliaGeo/Proj4.jl/issues/8)
 
