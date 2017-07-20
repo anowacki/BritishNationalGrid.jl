@@ -1,7 +1,6 @@
 # BritishNationalGrid
 
 [![Build Status](https://img.shields.io/travis/anowacki/BritishNationalGrid.jl.svg?style=flat-square&label=linux)](https://travis-ci.org/anowacki/BritishNationalGrid.jl)
-[![Build status](https://img.shields.io/appveyor/ci/AndyNowacki/britishnationalgrid-jl.svg?style=flat-square&label=windows)](https://ci.appveyor.com/project/AndyNowacki/britishnationalgrid-jl/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/anowacki/BritishNationalGrid.jl/badge.svg?branch=master)](https://coveralls.io/github/anowacki/BritishNationalGrid.jl?branch=master)
 
 ## Convert between WGS84 coordinates and British National Grid references
@@ -13,6 +12,9 @@ longitude-latitude and grid references.
 ```julia
 julia> Pkg.clone("https://github.com/anowacki/BritishNationalGrid.jl")
 ```
+
+**NB**: Automatic installation of the Proj4 library [doesn't seem to be working
+on Windows yet](https://github.com/JuliaGeo/Proj4.jl/issues/8)
 
 ## Use
 Construct points in the grid using `BNGPoint`.
