@@ -13,10 +13,10 @@ of the Isles of Scilly.
 
 Exported methods:
 
-    - `BNGPoint`: Construct a new point on the grid
-    - `gridref`: Return a string with an n-figure grid reference
-    - `lonlat`: Convert a grid point to WGS84 longitude and latitude
-    - `square`: Determine which National Grid 100 km square a point is in
+- `BNGPoint`: Construct a new point on the grid
+- `gridref`: Return a string with an n-figure grid reference
+- `lonlat`: Convert a grid point to WGS84 longitude and latitude
+- `square`: Determine which National Grid 100 km square a point is in
 
 See the documentation for each method to learn more.
 """
@@ -109,8 +109,10 @@ julia> gridref(BNGPoint(429157, 623009), 8, true)
 ```
 """
 function gridref(p::BNGPoint, n::Integer=8, sq::Bool=false)
-    2 <= n ||
-        throw(ArgumentError("Grid references must be given to at least 2 digits"))
+    2 <= n <= (sq ? 10 : 12) ||
+        throw(ArgumentError("Grid references must be given to between 2 " *
+            "and 12 digits without the name of the 100 km square, or 2 to 10 " *
+            "with (asked for $n)"))
     n%2 == 0 || throw(ArgumentError("Number of figures must be even"))
     n = n÷2
     east, north = p.e, p.n
@@ -118,7 +120,7 @@ function gridref(p::BNGPoint, n::Integer=8, sq::Bool=false)
         east %= 100_000
         north %= 100_000
     end
-    divisor = 10.0^(6 - (sq ? n+1 : n))
+    divisor = 10.0^(max(6 - (sq ? n+1 : n), 0))
     east = floor(Int, east/divisor)
     north = floor(Int, north/divisor)
     fmt = "%0$(n)d"
@@ -153,7 +155,7 @@ square(p::BNGPoint) = _square(p.e, p.n)
 
 # Internal routines
 const wgs84 = Projection("+proj=longlat +datum=WGS84")
-const bng = bng = Projection("+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 " *
+const bng = Projection("+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 " *
     "+x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs")
 
 """
