@@ -108,7 +108,7 @@ julia> gridref(BNGPoint(429157, 623009), 8, true)
 
 ```
 """
-function gridref(p::BNGPoint, n::Integer=8, sq::Bool=false)
+function gridref(p::BNGPoint, n::Integer=8, sq::Bool=false, sep=" ")
     2 <= n <= (sq ? 10 : 12) ||
         throw(ArgumentError("Grid references must be given to between 2 " *
             "and 12 digits without the name of the 100 km square, or 2 to 10 " *
@@ -126,7 +126,7 @@ function gridref(p::BNGPoint, n::Integer=8, sq::Bool=false)
     fmt = "%0$(n)d"
     se = sprintf1(fmt, east)
     sn = sprintf1(fmt, north)
-    ifelse(sq, square(p)*" ", "")*se*" "*sn
+    ifelse(sq, square(p)*sep, "")*se*sep*sn
 end
 
 """
