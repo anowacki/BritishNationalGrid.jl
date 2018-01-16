@@ -28,6 +28,14 @@ end
     @test_throws ArgumentError BNGPoint(-1, 0.)
     # Incorrect type
     @test_throws MethodError BNGPoint(1im, 1)
+    # With squares
+    @test_throws ArgumentError BNGPoint(0, 100_001, "SV")
+    @test_throws ArgumentError BNGPoint(-1, 0, "SV")
+    @test_throws ArgumentError BNGPoint(0, 0, "ZZ")
+    @test BNGPoint(0, 0, "SV").e == 0
+    @test BNGPoint(0, 0, "SV").n == 0
+    @test BNGPoint(0, 0, "TV") == BNGPoint(500_000, 0)
+    @test BNGPoint(1000, 1000, "TV") == BNGPoint(501_000, 1000)
 end
 
 ## Conversion lonlat ↔ BNG
