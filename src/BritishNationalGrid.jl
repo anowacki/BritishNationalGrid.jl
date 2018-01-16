@@ -96,15 +96,16 @@ end
 BNGPoint(; lon=0.0, lat=0.0) = BNGPoint.(lonlat2bng.(lon, lat))
 
 """
-    gridref(p::BNGPoint, n, square:false)
+    gridref(p::BNGPoint, n, square:false, separator=" ")
 
 Return a string giving an `n`-figure grid reference.  By default, a full reference
 is given.  If `square` is `true`, then supply the 100 km square name first, then
-the reference within that square.
+the reference within that square.  The square, eastings and northings are
+separated by `separator`.
 
 ```jldoctest
-julia> gridref(BNGPoint(429157, 623009), 8, true)
-"NU 2915 2300"
+julia> gridref(BNGPoint(429157, 623009), 8, true, separator="_")
+"NU_2915_2300"
 
 ```
 """
