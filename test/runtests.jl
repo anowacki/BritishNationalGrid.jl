@@ -50,3 +50,20 @@ end
     @test BNG.SQUARE_NAMES[end,end] == "JM"
     @test square(BNGPoint(429157, 623009)) == "NU"
 end
+
+
+## Grid reference formatting
+@testset "Gridref format" begin
+    @test_throws ArgumentError gridref(BNGPoint(0, 0), 1)
+    @test_throws ArgumentError gridref(BNGPoint(0, 0), 0)
+    @test_throws ArgumentError gridref(BNGPoint(0, 0), 12, true)
+    @test_throws ArgumentError gridref(BNGPoint(0, 0), 14)
+    @test gridref(BNGPoint(429157, 623009), 8, true) == "NU 2915 2300"
+    @test gridref(BNGPoint(429157, 623009)) == "4291 6230"
+    @test gridref(BNGPoint(429157, 623009), 2) == "4 6"
+    @test gridref(BNGPoint(429157, 623009), 2, true) == "NU 2 2"
+    @test gridref(BNGPoint(429157, 623009), 4) == "42 62"
+    @test gridref(BNGPoint(429157, 623009), 4, true) == "NU 29 23"
+    @test gridref(BNGPoint(429157, 623009), 10, true, "") == "NU2915723009"
+    @test gridref(BNGPoint(429157, 623009), 10, true, "_∘") == "NU_∘29157_∘23009"
+end
