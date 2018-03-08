@@ -6,7 +6,7 @@
 ## Convert between WGS84 coordinates and British National Grid references
 
 `BritishNationalGrid` provides the type `BNGPoint` to convert between
-longitude-latitude and grid references.
+longitude-latitude and grid references in the [British National Grid system](https://en.wikipedia.org/wiki/Ordnance_Survey_National_Grid).
 
 ## Install
 ```julia
