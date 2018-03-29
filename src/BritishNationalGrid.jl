@@ -22,6 +22,8 @@ See the documentation for each method to learn more.
 """
 module BritishNationalGrid
 
+import Compat: CartesianIndices, undef
+
 using Proj4
 using Formatting
 
@@ -84,7 +86,17 @@ function BNGPoint(e::T1, n::T2, sq::String) where {T1, T2}
         throw(ArgumentError("Easting and/or northing are not within a 100 km " *
             "square.  (Are: $e, $n.)"))
     sq in SQUARE_NAMES || throw(ArgumentError("'$sq' is not a valid square name"))
-    iN, iE = ind2sub(SQUARE_NAMES, find(SQUARE_NAMES .== sq)[1])
+    iN, iE = -1, -1
+    for i in eachindex(SQUARE_NAMES)
+        if SQUARE_NAMES[i] == sq
+            # FIXME: Tuple(CartesianIndices(SQUARE_NAMES)[i]) is the documented
+            #        way of doing this, but errors on v0.6, so use .I until
+            #        we stop supporting v0.6.
+            iN, iE = CartesianIndices(SQUARE_NAMES)[i].I
+            break
+        end
+    end
+    @assert (iN, iE) != (-1, -1)
     e += (iE-1)*100_000.0
     n += (iN-1)*100_000.0
     BNGPoint{promote_type(T1, T2)}(e, n)
@@ -230,7 +242,7 @@ julia> squares[floor(Int, northing/100_000)+1, floor(Int, easting/100_000)+1]
 ```
 """
 function square_names()
-    names = Array{String}(13, 7)
+    names = Array{String}(undef, 13, 7)
     letter2 = ["A" "B" "C" "D" "E"
                "F" "G" "H" "J" "K"
                "L" "M" "N" "O" "P"
