@@ -1,4 +1,4 @@
 julia 0.6
-Compat
+Compat 0.63
 Formatting
-Proj4
+Proj4 0.3

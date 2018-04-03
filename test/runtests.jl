@@ -1,5 +1,5 @@
 using BritishNationalGrid
-using Base.Test
+using Compat.Test
 
 const BNG = BritishNationalGrid
 
