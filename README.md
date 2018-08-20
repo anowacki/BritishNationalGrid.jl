@@ -21,7 +21,7 @@ be welcome.
 julia> Pkg.add("https://github.com/anowacki/BritishNationalGrid.jl")
 ```
 
-The package only supports Julia `v0.6`, with `v0.7` development underway.
+The package only supports Julia `v0.6`, `v0.7` and `v1`.
 
 ## Use
 Construct points in the grid using `BNGPoint`.
