@@ -1,6 +1,3 @@
-# Proj4 does not work when called by a precompiled module.
-__precompile__(false)
-
 """
 ### BritishNationalGrid
 
@@ -22,8 +19,6 @@ See the documentation for each method to learn more.
 """
 module BritishNationalGrid
 
-import Compat: CartesianIndices, undef
-
 using Proj4
 using Formatting
 
@@ -32,6 +27,16 @@ export
     gridref,
     lonlat,
     square
+
+
+const wgs84 = Ref{Projection}()
+const bng = Ref{Projection}()
+
+function __init__()
+    global wgs84[] = Projection("+proj=longlat +datum=WGS84")
+    global bng[] = Projection("+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 " *
+        "+x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs")
+end
 
 """
 #### Type
@@ -89,10 +94,7 @@ function BNGPoint(e::T1, n::T2, sq::String) where {T1, T2}
     iN, iE = -1, -1
     for i in eachindex(SQUARE_NAMES)
         if SQUARE_NAMES[i] == sq
-            # FIXME: Tuple(CartesianIndices(SQUARE_NAMES)[i]) is the documented
-            #        way of doing this, but errors on v0.6, so use .I until
-            #        we stop supporting v0.6.
-            iN, iE = CartesianIndices(SQUARE_NAMES)[i].I
+            iN, iE = Tuple(CartesianIndices(SQUARE_NAMES)[i])
             break
         end
     end
@@ -167,10 +169,6 @@ square(p::BNGPoint) = _square(p.e, p.n)
 
 
 # Internal routines
-const wgs84 = Projection("+proj=longlat +datum=WGS84")
-const bng = Projection("+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 " *
-    "+x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs")
-
 """
     lonlat2bng(lon, lat) -> easting, northing
     lonlat2bng(lon::AbstractArray, lat::AbstractArray) -> A::Array
@@ -181,17 +179,17 @@ so for length-n arrays and returns a n-by-2 array where the first column is the
 easting, and the second is the northing.
 """
 function lonlat2bng(lon::T1, lat::T2) where {T1<:Real, T2<:Real}
-    en = transform(wgs84, bng, [lon, lat])
+    en = transform(wgs84[], bng[], [lon, lat])
     en[1], en[2]
 end
 lonlat2bng(lon::AbstractArray, lat::AbstractArray) = transform(wgs84, bng, hcat(lon, lat))
 
 function bng2lonlat(e::T1, n::T2) where {T1<:Real, T2<:Real}
-    lonlat = transform(bng, wgs84, [e, n])
+    lonlat = transform(bng[], wgs84[], [e, n])
     lonlat[1], lonlat[2]
 end
 bng2lonlat(p::BNGPoint) = bng2lonlat(p.e, p.n)
-bng2lonlat(e::AbstractArray, n::AbstractArray) = transform(bng, wgs84, hcat(e, n))
+bng2lonlat(e::AbstractArray, n::AbstractArray) = transform(bng[], wgs84[], hcat(e, n))
 
 """
     in_grid(e, n) -> ::Bool

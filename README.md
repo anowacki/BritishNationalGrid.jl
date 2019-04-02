@@ -18,10 +18,10 @@ be welcome.
 
 ## Install
 ```julia
-julia> Pkg.add("https://github.com/anowacki/BritishNationalGrid.jl")
-```
+julia> import Pkg
 
-The package only supports Julia `v0.6`, `v0.7` and `v1`.
+julia> Pkg.add("BritishNationalGrid")
+```
 
 ## Use
 Construct points in the grid using `BNGPoint`.
@@ -30,16 +30,16 @@ Construct points in the grid using `BNGPoint`.
 julia> using BritishNationalGrid
 
 julia> p1 = BNGPoint(42513, 100231) # Full grid reference
-BritishNationalGrid.BNGPoint{Int64}(42513, 100231)
+BNGPoint{Int64}(42513, 100231)
 
 julia> lonlat(p1) # Convert to longitude-latitude (°)
-(-7.063648859478239, 50.691553069358555)
+(-7.063648859478239, 50.69155306935914)
 
 julia> p2 = BNGPoint(lon=0.32, lat=51.0) # Construct point from lon-lat
-BritishNationalGrid.BNGPoint{Float64}(562885.4557430055, 124851.2191743746)
+BNGPoint{Float64}(562885.4557430055, 124851.2191743746)
 
 julia> p3 = BNGPoint(00123, 51422, "TA") # Construct from 100 km square name
-BritishNationalGrid.BNGPoint{Int64}(500123, 451422)
+BNGPoint{Int64}(500123, 451422)
 ```
 
 Get a formatted grid reference:
