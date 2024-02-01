@@ -1,0 +1,21 @@
+name = "BritishNationalGrid"
+uuid = "07503c7f-9676-5157-a8e2-6c0d0a9caee7"
+authors = ["Andy Nowacki <a.nowacki@leeds.ac.uk>"]
+version = "0.4.0"
+
+[deps]
+Artifacts = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Proj = "c94c279d-25a6-4763-9509-64d165bea63e"
+
+[compat]
+Artifacts = "1.6"
+Printf = "1.6"
+Proj = "1"
+julia = "1.6"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

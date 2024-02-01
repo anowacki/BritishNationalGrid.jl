@@ -1,0 +1,6 @@
+[ostn15_grid]
+git-tree-sha1 = "dfb1317619a2fc71ae631e8c9575012efc0073ce"
+
+    [[ostn15_grid.download]]
+    url = "https://github.com/anowacki/BritishNationalGrid.jl-artifacts/raw/main/uk_os_OSTN15_NTv2_OSGBtoETRS.tar.bz2"
+    sha256 = "7538ad2d50c0e751d646401b93875f6cf0897a2861e206c05b44e291df885be6"

@@ -15,6 +15,8 @@ function check_lonlat_to_bng(lon, lat, easting, northing, tol)
     isapprox(easting, p.e, atol=tol) && isapprox(northing, p.n, atol=tol)
 end
 
+@testset "All tests" begin
+
 ## Construction
 @testset "Construction" begin
     @test BNGPoint(500_000., 1_000_000).e == 500_000.
@@ -36,19 +38,22 @@ end
     @test BNGPoint(0, 0, "SV").n == 0
     @test BNGPoint(0, 0, "TV") == BNGPoint(500_000, 0)
     @test BNGPoint(1000, 1000, "TV") == BNGPoint(501_000, 1000)
+
+    @testset "Conversion on construction" begin
+        lon, lat = 1, 55
+        @test BNGPoint(; lon, lat) == BNGPoint(BritishNationalGrid.lonlat2bng(lon, lat)...)
+    end
 end
 
 ## Conversion lonlat ↔ BNG
-const lonlattol = 1e-6
-const gridtol = 1 # Because the online calculator rounds of course
+lonlattol = 1e-6
+gridtol = 1
 
-# Points taken from BGS converter at:
-#   http://www.bgs.ac.uk/data/webservices/convertForm.cfm
+# Examples taken from OS converter at:
+#   https://github.com/OrdnanceSurvey/os-transform?tab=readme-ov-file
 @testset "Conversion" begin
-    @test check_bng_to_lonlat(429157, 623009, -1.54000791003, 55.4999996103, lonlattol)
-    @test check_bng_to_lonlat(0, 0, -7.55716018087, 49.766807227, lonlattol)
-    @test check_lonlat_to_bng(-1.54000791003, 55.4999996103, 429157, 623009, gridtol)
-    @test check_lonlat_to_bng(0, 60, 511648, 1125592, gridtol)
+    @test check_bng_to_lonlat(337297, 503695, -2.9679374, 54.42481, lonlattol)
+    @test check_lonlat_to_bng(-2.96793742245737, 54.42480998276385, 337297, 503695, gridtol)
 end
 
 
@@ -64,14 +69,16 @@ end
 @testset "Gridref format" begin
     @test_throws ArgumentError gridref(BNGPoint(0, 0), 1)
     @test_throws ArgumentError gridref(BNGPoint(0, 0), 0)
-    @test_throws ArgumentError gridref(BNGPoint(0, 0), 12, true)
+    @test_throws ArgumentError gridref(BNGPoint(0, 0), 12, square=true)
     @test_throws ArgumentError gridref(BNGPoint(0, 0), 14)
-    @test gridref(BNGPoint(429157, 623009), 8, true) == "NU 2915 2300"
+    @test gridref(BNGPoint(429157, 623009), 8, square=true) == "NU 2915 2300"
     @test gridref(BNGPoint(429157, 623009)) == "4291 6230"
     @test gridref(BNGPoint(429157, 623009), 2) == "4 6"
-    @test gridref(BNGPoint(429157, 623009), 2, true) == "NU 2 2"
+    @test gridref(BNGPoint(429157, 623009), 2, square=true) == "NU 2 2"
     @test gridref(BNGPoint(429157, 623009), 4) == "42 62"
-    @test gridref(BNGPoint(429157, 623009), 4, true) == "NU 29 23"
-    @test gridref(BNGPoint(429157, 623009), 10, true, "") == "NU2915723009"
-    @test gridref(BNGPoint(429157, 623009), 10, true, "_∘") == "NU_∘29157_∘23009"
+    @test gridref(BNGPoint(429157, 623009), 4, square=true) == "NU 29 23"
+    @test gridref(BNGPoint(429157, 623009), 10, square=true, sep="") == "NU2915723009"
+    @test gridref(BNGPoint(429157, 623009), 10, square=true, sep="_∘") == "NU_∘29157_∘23009"
+end
+
 end
