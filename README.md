@@ -1,7 +1,7 @@
 # BritishNationalGrid
 
 [![Build Status](https://github.com/anowacki/BritishNationalGrid.jl/workflows/CI/badge.svg)](https://github.com/anowacki/BritishNationalGrid.jl/actions)
-[![Coverage Status](https://coveralls.io/repos/github/anowacki/BritishNationalGrid.jl/badge.svg?branch=master)](https://coveralls.io/github/anowacki/BritishNationalGrid.jl?branch=master)
+[![Coverage Status](https://codecov.io/gh/anowacki/BritishNationalGrid.jl/graph/badge.svg?token=I27Dz8a1ER)](https://codecov.io/gh/anowacki/BritishNationalGrid.jl)
 
 ## Convert between WGS84 coordinates and British National Grid references
 
