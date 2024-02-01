@@ -217,7 +217,6 @@ function bng2lonlat(e::T1, n::T2) where {T1<:Real, T2<:Real}
     lon, lat = FROM_BNG[](e, n)
     lon, lat
 end
-bng2lonlat(p::BNGPoint) = bng2lonlat(p.e, p.n)
 
 """
     in_grid(e, n) -> ::Bool
