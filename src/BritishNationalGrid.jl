@@ -19,8 +19,9 @@ See the documentation for each method to learn more.
 """
 module BritishNationalGrid
 
-using Proj4
-using Formatting
+using Artifacts: @artifact_str
+using Proj: Proj, Transformation
+using Printf: Format, format
 
 export
     BNGPoint,
@@ -28,14 +29,18 @@ export
     lonlat,
     square
 
+const BNG_STRING = "EPSG:27700"
+const WGS84_STRING = "EPSG:4326"
 
-const wgs84 = Ref{Projection}()
-const bng = Ref{Projection}()
+const FROM_WGS84 = Ref{Transformation}()
+const FROM_BNG = Ref{Transformation}()
 
 function __init__()
-    global wgs84[] = Projection("+proj=longlat +datum=WGS84")
-    global bng[] = Projection("+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 " *
-        "+x_0=400000 +y_0=-100000 +ellps=airy +datum=OSGB36 +units=m +no_defs")
+    # Allow Proj to find the grid needed to convert from OSGB to ETRS
+    # by adding the artifact directory to its search path
+    Proj.proj_context_set_search_paths(2, [Proj.PROJ_DATA[], artifact"ostn15_grid"])
+    FROM_WGS84[] = Transformation(WGS84_STRING, BNG_STRING; always_xy=true)
+    FROM_BNG[] = Transformation(BNG_STRING, WGS84_STRING; always_xy=true)
 end
 
 """
@@ -43,7 +48,7 @@ end
 
     BNGPoint{T<:Real}
 
-A struct holding the easting, northing and square of a point within the British
+A struct holding the easting and northing of a point within the British
 National Grid.
 
 #### Constructors
@@ -69,9 +74,24 @@ Convert a WGS84 longitude `lon` and latitude `lat` in degrees, into a grid point
 
 ```jldoctest
 julia> BNGPoint(lon=-1.54, lat=55.5)
-BritishNationalGrid.BNGPoint{Float64}(429157.5035843846, 623009.046274823)
+BNGPoint{Float64}(429158.6966862687, 623009.0927592682)
 
 ```
+
+#### Acessing fields
+A `BNGPoint` contains the following fields:
+- `e`: Easting in m
+- `n`: Northing in m
+
+These fields are part of the API, and therefore it is safe and expected
+for users to extract the eastings and northings from a `BNGPoint` like so:
+
+```jldoctest
+julia> p = BNGPoint(lon=-1.54, lat=55.5)
+BNGPoint{Float64}(429158.6966862687, 623009.0927592682)
+
+julia> p.e, p.n
+(429158.6966862687, 623009.0927592682)
 """
 struct BNGPoint{T<:Real}
     e::T
@@ -110,38 +130,48 @@ end
 BNGPoint(; lon=0.0, lat=0.0) = BNGPoint.(lonlat2bng.(lon, lat))
 
 """
-    gridref(p::BNGPoint, n, square:false, separator=" ")
+    gridref(p::BNGPoint, n; square=false, sep=' ')
 
 Return a string giving an `n`-figure grid reference.  By default, a full reference
 is given.  If `square` is `true`, then supply the 100 km square name first, then
 the reference within that square.  The square, eastings and northings are
-separated by `separator`.
+separated by `sep`.
 
 ```jldoctest
-julia> gridref(BNGPoint(429157, 623009), 8, true, separator="_")
+julia> gridref(BNGPoint(429157, 623009), 8, square=true, sep="_")
 "NU_2915_2300"
 
 ```
 """
-function gridref(p::BNGPoint, n::Integer=8, sq::Bool=false, sep=" ")
-    2 <= n <= (sq ? 10 : 12) ||
+function gridref(p::BNGPoint, n::Integer=8; square::Bool=false, sep=' ')
+    2 <= n <= (square ? 10 : 12) ||
         throw(ArgumentError("Grid references must be given to between 2 " *
             "and 12 digits without the name of the 100 km square, or 2 to 10 " *
             "with (asked for $n)"))
     n%2 == 0 || throw(ArgumentError("Number of figures must be even"))
     n = n÷2
     east, north = p.e, p.n
-    if sq
+    if square
         east %= 100_000
         north %= 100_000
     end
-    divisor = 10.0^(max(6 - (sq ? n+1 : n), 0))
+    divisor = 10.0^(max(6 - (square ? n+1 : n), 0))
     east = floor(Int, east/divisor)
     north = floor(Int, north/divisor)
-    fmt = "%0$(n)d"
-    se = sprintf1(fmt, east)
-    sn = sprintf1(fmt, north)
-    ifelse(sq, square(p)*sep, "")*se*sep*sn
+    fmt = Format("%0$(n)d")
+    io = IOBuffer()
+    if square
+        write(io, BritishNationalGrid.square(p))
+        if !isempty(sep)
+            write(io, sep)
+        end
+    end
+    format(io, fmt, east)
+    if !isempty(sep)
+        write(io, sep)
+    end
+    format(io, fmt, north)
+    String(take!(io))
 end
 
 """
@@ -178,18 +208,16 @@ The first form does so for scalars and returns a tuple; the second form does
 so for length-n arrays and returns a n-by-2 array where the first column is the
 easting, and the second is the northing.
 """
-function lonlat2bng(lon::T1, lat::T2) where {T1<:Real, T2<:Real}
-    en = transform(wgs84[], bng[], [lon, lat])
-    en[1], en[2]
+function lonlat2bng(lon::Real, lat::Real)
+    e, n = FROM_WGS84[](lon, lat)
+    e, n
 end
-lonlat2bng(lon::AbstractArray, lat::AbstractArray) = transform(wgs84, bng, hcat(lon, lat))
 
 function bng2lonlat(e::T1, n::T2) where {T1<:Real, T2<:Real}
-    lonlat = transform(bng[], wgs84[], [e, n])
-    lonlat[1], lonlat[2]
+    lon, lat = FROM_BNG[](e, n)
+    lon, lat
 end
 bng2lonlat(p::BNGPoint) = bng2lonlat(p.e, p.n)
-bng2lonlat(e::AbstractArray, n::AbstractArray) = transform(bng[], wgs84[], hcat(e, n))
 
 """
     in_grid(e, n) -> ::Bool
