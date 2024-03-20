@@ -8,14 +8,22 @@ The `BNGPoint` type and constructor is used to create points with easting
 and northings  These are given relative to the grid's false origin southwest
 of the Isles of Scilly.
 
-Exported methods:
+Exported functions:
 
 - `BNGPoint`: Construct a new point on the grid
 - `gridref`: Return a string with an n-figure grid reference
 - `lonlat`: Convert a grid point to WGS84 longitude and latitude
 - `square`: Determine which National Grid 100 km square a point is in
 
-See the documentation for each method to learn more.
+The following functions are also exported.  Note that these do not check
+that the longitude and latitude, or easting and northing, supplied to
+these functions are within the valid region of the grid, and so
+**these functions should be used with care**.
+
+- `bng2lonlat`: Return (unchecked) longitude and latitude from BNG coordinates
+- `lonlat2bng`: Return (unchecked) BNG coordinates from a longitude and latitude
+
+See the documentation for each function to learn more.
 """
 module BritishNationalGrid
 
@@ -25,8 +33,10 @@ using Printf: Format, format
 
 export
     BNGPoint,
+    bng2lonlat,
     gridref,
     lonlat,
+    lonlat2bng,
     square
 
 const BNG_STRING = "EPSG:27700"
@@ -67,6 +77,12 @@ julia> BNGPoint(101, 12345, "OV")
 BritishNationalGrid.BNGPoint{Int64}(500101, 512345)
 
 ```
+
+!!! note
+    An error is thrown if the supplied coordinates do not lie within the valid
+    bounds of the National Grid.
+
+---
 
     BNGPoint(; lon=0, lat=0)
 
@@ -197,27 +213,55 @@ julia> BritishNationalGrid.square(BNGPoint(200_000, 1_000_000))
 """
 square(p::BNGPoint) = _square(p.e, p.n)
 
-
-# Internal routines
 """
     lonlat2bng(lon, lat) -> easting, northing
-    lonlat2bng(lon::AbstractArray, lat::AbstractArray) -> A::Array
 
-Transform from longitude and latitude in WGS84 into BNG easting and northing (m).
-The first form does so for scalars and returns a tuple; the second form does
-so for length-n arrays and returns a n-by-2 array where the first column is the
-easting, and the second is the northing.
+Transform from `lon`gitude and `lat`itude (degrees) in WGS84 into BNG
+`easting` and `northing` (m).
+
+!!! note
+    This function does not throw an error if `lon` and `lat` are at a
+    point outside the bounds of the National Grid.  Therefore this
+    function should be used with caution.
+
+# Example
+```jldoctest
+julia> lon, lat = -3.183503, 55.954983;
+
+julia> lonlat2bng(lon, lat)
+(326200.06052230217, 674183.9198954724)
+
+```
 """
 function lonlat2bng(lon::Real, lat::Real)
     e, n = FROM_WGS84[](lon, lat)
     e, n
 end
 
-function bng2lonlat(e::T1, n::T2) where {T1<:Real, T2<:Real}
-    lon, lat = FROM_BNG[](e, n)
+"""
+    bng2lonlat(e::T1, n::T2) where {T1<:Real, T2<:Real} -> longitude, latitude
+
+Transform from `easting` and `northing` in m on the British National Grid
+to WGS84 `longitude` and `latitude` (degrees).
+
+!!! note
+    This function does not throw an error if `e` and `n` are
+    outside the bounds of the National Grid.  Therefore this
+    function should be used with caution.
+
+# Example
+```jldoctest
+julia> bng2lonlat(175154, 225430)
+(-5.268407238735794, 51.88199105278528)
+
+```
+"""
+function bng2lonlat(easting::Real, northing::Real)
+    lon, lat = FROM_BNG[](easting, northing)
     lon, lat
 end
 
+# Internal routines
 """
     in_grid(e, n) -> ::Bool
 

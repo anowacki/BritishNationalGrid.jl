@@ -58,6 +58,21 @@ julia> square(p3)
 "TA"
 ```
 
+### Direct (unchecked) lon-lat ↔ easting-northing conversion
+The `lonlat2bng` and `bng2lonlat` functions convert directly between the
+two coordinate systems, but **do not check that points are actually in the
+National Grid**; therefore use these functions with caution.
+
+```julia
+julia> lon, lat = -3.183503, 55.954983;
+
+julia> lonlat2bng(lon, lat)
+(326200.06052230217, 674183.9198954724)
+
+julia> bng2lonlat(175154, 225430)
+(-5.268407238735794, 51.88199105278528)
+```
+
 ## Todo
 - Tie the BNGPoint type into [Geodesy.jl](https://github.com/JuliaGeo/Geodesy.jl).
 

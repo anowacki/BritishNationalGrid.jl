@@ -12,7 +12,9 @@ function check_bng_to_lonlat(easting, northing, lon, lat, tol)
 end
 function check_lonlat_to_bng(lon, lat, easting, northing, tol)
     p = BNGPoint(lon=lon, lat=lat)
-    isapprox(easting, p.e, atol=tol) && isapprox(northing, p.n, atol=tol)
+    e, n = lonlat2bng(lon, lat)
+    isapprox(easting, p.e, atol=tol) && isapprox(northing, p.n, atol=tol) &&
+        p.e == e && p.n == n
 end
 
 @testset "All tests" begin
