@@ -1,7 +1,7 @@
 name = "BritishNationalGrid"
 uuid = "07503c7f-9676-5157-a8e2-6c0d0a9caee7"
 authors = ["Andy Nowacki <a.nowacki@leeds.ac.uk>"]
-version = "0.4.0"
+version = "1.0.0"
 
 [deps]
 Artifacts = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
